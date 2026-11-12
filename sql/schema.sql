@@ -19,9 +19,14 @@ CREATE TABLE IF NOT EXISTS sap_notes (
     raw_xml        TEXT,
     sar_path       TEXT,
     sar_sha256     TEXT,
+    is_tax_reform  BOOLEAN NOT NULL DEFAULT FALSE,
+    classification_score INT NOT NULL DEFAULT 0,
+    matched_keywords TEXT[] NOT NULL DEFAULT '{}',
+    source         TEXT NOT NULL DEFAULT 'download',  -- download|rfc
     ingested_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE INDEX IF NOT EXISTS idx_sap_notes_tax_reform ON sap_notes(is_tax_reform) WHERE is_tax_reform;
 CREATE INDEX IF NOT EXISTS idx_sap_notes_component ON sap_notes(component);
 CREATE INDEX IF NOT EXISTS idx_sap_notes_released_on ON sap_notes(released_on DESC);
 CREATE INDEX IF NOT EXISTS idx_sap_notes_title_trgm ON sap_notes USING gin (title gin_trgm_ops);
@@ -60,7 +65,13 @@ CREATE TABLE IF NOT EXISTS clients (
     sap_sp         TEXT,                -- e.g. SP0004
     components     TEXT[] NOT NULL DEFAULT '{}',
     webhook_url    TEXT,
-    active         BOOLEAN NOT NULL DEFAULT TRUE
+    active         BOOLEAN NOT NULL DEFAULT TRUE,
+    -- RFC source (ABAP REST endpoint per customer)
+    rfc_endpoint   TEXT,
+    rfc_auth_user  TEXT,
+    rfc_auth_pass  TEXT,
+    rfc_sap_client TEXT,
+    alert_all      BOOLEAN NOT NULL DEFAULT FALSE  -- true = alerta tudo, false = só is_tax_reform
 );
 
 CREATE TABLE IF NOT EXISTS alerts (

@@ -4,13 +4,19 @@ Ingestão de SAP Notes (via Download API) + alerta por cliente baseado na versã
 
 ## Arquitetura
 
+Dois modos de ingestão, controlados por `SOURCE_MODE`:
+
 ```
-APScheduler → discover (OData) → download_queue
-                                  ↓
-                          download (.sar) → SAPCAR → extractor → Postgres
-                                                                  ↓
-                                                        matcher → alerts → webhook
+SOURCE_MODE=download  (SAP for Me — exige S-User + OAuth2)
+  discover (OData) → download_queue → .sar → SAPCAR → extract → classify → upsert → match → webhook
+
+SOURCE_MODE=rfc       (contingência — sem S-User)
+  por cliente: GET {rfc_endpoint}/list → GET /note/{n} → classify → upsert → match (direto) → webhook
 ```
+
+**Classifier** (`config/tax_reform_patterns.yml`): combina componente BR + keywords (IBS/CBS/LC 214/EC 132/CClassTrib/split payment/…) + Category=LegalChange → marca `is_tax_reform`. Clientes com `alert_all=false` só recebem notas marcadas.
+
+**Modo RFC** = ABAP REST wrapper (`abap/ZCL_SNOTES_API.abap`) exposto via SICF em cada sistema do cliente. SAP já filtra aplicabilidade por release/SP; nosso matcher só aplica o filtro de relevância tributária.
 
 ## Pré-requisitos
 

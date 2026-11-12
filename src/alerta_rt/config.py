@@ -7,11 +7,15 @@ class Settings(BaseSettings):
 
     database_url: str
 
-    sap_oauth_token_url: str
-    sap_oauth_client_id: str
-    sap_oauth_client_secret: str
-    sap_odata_base: str
-    sap_download_base: str
+    # download | rfc — escolhe a origem das notas
+    source_mode: str = "download"
+
+    # Credenciais SAP for Me (apenas quando source_mode=download)
+    sap_oauth_token_url: str = ""
+    sap_oauth_client_id: str = ""
+    sap_oauth_client_secret: str = ""
+    sap_odata_base: str = ""
+    sap_download_base: str = ""
 
     discover_interval_min: int = 30
     download_concurrency: int = 2

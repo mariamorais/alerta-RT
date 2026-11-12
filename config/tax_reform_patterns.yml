@@ -1,0 +1,41 @@
+# Padrões heurísticos para classificar nota como "Reforma Tributária BR".
+# Score final = sum(weights dos hits). is_tax_reform = (component_br AND score >= threshold).
+
+threshold: 3
+
+components_br:
+  - "SAP-LO-GT-BR"
+  - "XX-CSC-BR-"
+  - "FI-LOC-BR"
+  - "FI-LOC-SRF-BR"
+  - "SD-BIL-GT-BR"
+  - "MM-IM-GF-BR"
+  - "PY-BR"
+  - "CA-GTF-CSC-NFE-BR"
+  - "LO-MD-BP-BR"
+
+# (regex, weight). Case-insensitive. Aplicado em title + long_text.
+keywords:
+  - ["reforma\\s+tribut[aá]ri", 5]
+  - ["\\bIBS\\b", 3]
+  - ["\\bCBS\\b", 3]
+  - ["\\bIS\\b.{0,20}(seletivo|imposto)", 2]
+  - ["LC\\s*214(/2025)?", 4]
+  - ["EC\\s*132(/2023)?", 4]
+  - ["split\\s*payment", 3]
+  - ["CClassTrib", 4]
+  - ["cEspecTrib", 4]
+  - ["gIBSCBS", 5]
+  - ["CST.{0,15}(reforma|LC\\s*214|IBS|CBS)", 3]
+  - ["NF-?e.{0,20}(RT|4\\.?00|reforma)", 2]
+  - ["(novo|new)\\s*(modelo|layout).{0,30}(fiscal|tribut)", 2]
+  - ["Comit[eê]\\s*Gestor\\s*(do\\s*)?IBS", 3]
+
+# Categorias/priority do OData que elevam confiança
+categories_boost:
+  LegalChange: 2
+  "Legal Change": 2
+
+priorities_boost:
+  HotNews: 1
+  "Correction of legal function": 2
